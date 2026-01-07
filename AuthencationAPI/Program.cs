@@ -1,3 +1,7 @@
+using BLL_;
+using BLL_.InterFace;
+using DAL_;
+using DAL_.helper;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using shared;
@@ -8,6 +12,9 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 
 builder.Services.AddControllers();
+builder.Services.AddTransient<IDatabaseHelper, DatabaseHelper>();
+builder.Services.AddTransient<IAccountReponsive, NguoiDungDAL>();
+builder.Services.AddTransient<INguoiDung,BLLNguoiDung>();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();

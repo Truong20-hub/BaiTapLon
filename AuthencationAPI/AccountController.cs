@@ -1,37 +1,46 @@
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 using System.Collections.Concurrent;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using Model_;
+using BLL_.InterFace;
 
 namespace AuthencationAPI.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class AccountController(IConfiguration config) : ControllerBase
+    public class AccountController : ControllerBase
     {
-        private static ConcurrentDictionary<string, string> Accounts { get; set; } =
-            new ConcurrentDictionary<string, string>();
-
-        [HttpPost("login/{email}/{password}")]
-        public async Task<IActionResult> Get(string email, string password)
+        private readonly IConfiguration config;
+        private readonly INguoiDung _nguoiDungService;
+        public AccountController(IConfiguration configuration, INguoiDung nguoiDungService)
         {
-            await Task.Delay(500); // Simulate async operation
-            var getEmail = Accounts!.Keys.Where(e => e.Equals(email)).FirstOrDefault();
-            if(!string.IsNullOrEmpty(getEmail))
-            {
-                Accounts.TryGetValue(getEmail, out string? storedPassword);
-                if(!Equals(storedPassword, password))
-                    return BadRequest("Invalid password");
-                string jwtToken = GenerateToken(email);
-                return Ok(jwtToken);
-            }
-            else
-            {
-                return NotFound("Account not found");
-            }
+            config = configuration;
+            _nguoiDungService = nguoiDungService;
         }
+
+        private static ConcurrentDictionary<string, string> Accounts { get; set; } = new ConcurrentDictionary<string, string>();
+        [HttpPost("login")]
+        public async Task<IActionResult> Get([FromForm] string email, [FromForm] string password)
+        {
+            await Task.Delay(500);
+            NguoiDung nguoiDung = new NguoiDung(email,password);
+
+
+            var user = _nguoiDungService.GetbyMkTKTaiKhoan(nguoiDung);
+
+            
+            if (user == null || string.IsNullOrEmpty(user.email))
+            {
+                return Unauthorized("Email hoặc mật khẩu không đúng");
+            }
+
+            var token = GenerateToken(user.email);
+            return Ok(new { Token = token });
+        }
+
 
         private string GenerateToken(string email)
         {
@@ -48,17 +57,11 @@ namespace AuthencationAPI.Controllers
             );
             return new JwtSecurityTokenHandler().WriteToken(token);
         }
-        [HttpPost("register/{email}/{password}")]
-        public async Task<IActionResult> resgister(string email, string password)
+        [HttpPost("register/{nd}")]
+        public async Task<IActionResult> resgister(NguoiDung nd)
         {
             await Task.Delay(500); // Simulate async operation
-            var getEmail = Accounts!.Keys.Where(e => e.Equals(email)).FirstOrDefault();
-            if(!string.IsNullOrEmpty(getEmail))
-                return BadRequest("Account already exists");
-            Accounts[email] = password;
-            return Ok("Account registered successfully");
-
-
+            return NotFound("Chua xong");
         }
 
 

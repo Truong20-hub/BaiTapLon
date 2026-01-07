@@ -12,6 +12,8 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\..\..\Desktop\baiCuaQuan\btlapi-main\BLL_\BLL_.csproj" />
+    <ProjectReference Include="..\..\..\..\Desktop\baiCuaQuan\btlapi-main\Model_\Model_.csproj" />
     <ProjectReference Include="..\shared\shared.csproj" />
   </ItemGroup>
 
